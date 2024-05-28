@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <title>Add Type</title>
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+</head>
+<body>
+<div class="container">
+  <h1>Add a type</h1>
+  <form action="#" th:action="@{/types}" th:object="${type}" method="post">
+    <div class="form-group">
+      <label for="name">Name:</label>
+      <input type="text" id="name" th:field="*{name}" class="form-control" />
+    </div>
+    <div class="form-group">
+      <label for="measurement">Measurement value:</label>
+      <input type="text" id="measurement" th:field="*{measurement}" class="form-control" />
+    </div>
+    <div class="form-group">
+      <label for="measurement">Unit price:</label>
+      <input type="text" id="unitPrice" th:field="*{unitPrice}" class="form-control" />
+    </div>
+    <button type="submit" class="btn btn-primary">Add type</button>
+  </form>
+  <a href="/machines">View Machines</a>
+  <h3>Types</h3>
+  <table class="table">
+    <thead>
+    <tr>
+      <th>Name</th>
+      <th>Measurement value</th>
+      <th>Unit price</th>
+    </tr>
+    </thead>
+    <tbody id="types">
+    <tr th:each="type : ${types}">
+      <td th:text="${type.name}"></td>
+      <td th:text="${type.measurement}"></td>
+      <td th:text="${type.unitPrice}"></td>
+    </tr>
+    </tbody>
+  </table>
+</div>
+</body>
+</html>
