@@ -5,7 +5,6 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Transient;
 import lombok.Getter;
@@ -34,8 +33,6 @@ public class Machine {
     private List<Element> elements;
     @Transient
     private BigDecimal total = new BigDecimal(0);
-    @ManyToOne(cascade = {CascadeType.PERSIST, CascadeType.REFRESH})
-    private TimePeriod timePeriod;
 
     @Override
     public final boolean equals(Object o) {

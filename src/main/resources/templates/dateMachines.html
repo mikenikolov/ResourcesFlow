@@ -11,6 +11,7 @@
     <button type="submit" class="btn btn-danger">Logout as "<span th:text="${#authentication.name}"></span>"</button>
   </form>
   <h1>List of Machines</h1>
+  <h4>Month: <span th:text="${timePeriod.month}"></span>, Year: <span th:text="${timePeriod.year}"></span></h4>
   <div th:each="machine : ${machines}">
     <div class="card mb-3">
       <div class="card-body">
@@ -22,22 +23,22 @@
           <tr>
             <th>Channel</th>
             <th>Name</th>
+            <th>Amount</th>
             <th>Type</th>
-            <th>Measurement</th>
+            <th>Total</th>
           </tr>
           </thead>
           <tbody>
           <tr th:each="element : ${machine.elements}">
             <td><span th:text="${element.channel}"></span></td>
             <td><span th:text="${element.name}"></span></td>
+            <td><span th:text="${element.amount}"></span> <span th:text="${element.type.measurement}"></span></td>
             <td><span th:text="${element.type.name}"></span></td>
-            <td><span th:text="${element.type.measurement}"></span></td>
+            <td><span th:text="${element.total}"></span> UAH</td>
           </tr>
           </tbody>
         </table>
-        <div class="position-relative">
-          <a th:href="@{'/machines/' + ${machine.id} + '/addExpenses'}" class="btn btn-primary position-absolute top-0 end-0">Add Expense</a>
-        </div>
+        <p>Total: <span th:text="${machine.total}"></span> UAH</p>
       </div>
     </div>
   </div>
