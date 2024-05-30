@@ -4,16 +4,16 @@ import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
-import ua.kpi.resourcesflow.model.Element;
-import ua.kpi.resourcesflow.model.ElementWrapper;
-import ua.kpi.resourcesflow.model.Machine;
-import ua.kpi.resourcesflow.model.TimePeriod;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+import ua.kpi.resourcesflow.exception.BadRequestException;
+import ua.kpi.resourcesflow.model.*;
 import ua.kpi.resourcesflow.repository.MachineRepository;
 import ua.kpi.resourcesflow.repository.TimePeriodRepository;
 import ua.kpi.resourcesflow.service.MachineService;
 import ua.kpi.resourcesflow.service.TypeService;
 
-import java.time.LocalDate;
+import java.time.YearMonth;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -34,12 +34,13 @@ public class MachineController {
         machine.getElements().add(new Element());
         model.addAttribute("machine", machine);
         model.addAttribute("types", typeService.getAllTypes());
-        return "addMachine";
+        return "add-machine";
     }
 
     @PostMapping("/add")
-    public String submitForm(@ModelAttribute("machine") Machine machine) {
+    public String submitForm(@ModelAttribute("machine") Machine machine, RedirectAttributes redirectAttributes) {
         machineService.saveMachine(machine);
+        redirectAttributes.addFlashAttribute("success", "Machine was successfully created!");
         return "redirect:/machines";
     }
 
@@ -47,31 +48,38 @@ public class MachineController {
     public String showMachines(Model model) {
         List<Machine> machines = machineService.getAllMachines();
         model.addAttribute("machines", machines);
-        return "machines";
+        return "registered-machines";
     }
 
-    @GetMapping("/{machineId}/addExpenses")
+    @GetMapping("/{machineId}/add-expenses")
     public String showAddExpenseForm(@PathVariable Long machineId, Model model) {
-        Machine machine = machineRepository.findById(machineId).get();
+        Machine machine = machineRepository.findById(machineId)
+                .orElseThrow(() -> new BadRequestException("This machine is not exists!"));
         ElementWrapper wrapper = new ElementWrapper();
         for (Element element : machine.getElements()) {
             element.getExpenses().clear();
         }
-
         wrapper.setElements(machine.getElements());
         model.addAttribute("machineId", machineId);
         model.addAttribute("elementWrapper", wrapper);
-        return "addExpenses";
+        return "add-expenses";
     }
 
 
-    @PostMapping("/{machineId}/addExpenses")
+    @PostMapping("/{machineId}/add-expenses")
     public String addExpenses(@PathVariable Long machineId,
-                              @ModelAttribute("month") Integer month,
-                              @ModelAttribute("year") Integer year,
-                              @ModelAttribute("elementWrapper") ElementWrapper elementWrapper) {
+                              @RequestParam("date") String dateStr,
+                              @ModelAttribute("elementWrapper") ElementWrapper elementWrapper,
+                              RedirectAttributes redirectAttributes) {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MM/yyyy");
+        YearMonth yearMonth;
+        yearMonth = YearMonth.parse(dateStr, formatter);
+
+        int month = yearMonth.getMonthValue();
+        int year = yearMonth.getYear();
         List<Element> elements = elementWrapper.getElements();
-        Machine machine = machineRepository.findById(machineId).get();
+        Machine machine = machineRepository.findById(machineId)
+                .orElseThrow(() -> new BadRequestException("This machine is not exists!"));
         elements.forEach(e -> machine.getElements().forEach(me -> {
             if (e.getId().equals(me.getId())) {
                 me.getExpenses().addAll(e.getExpenses());
@@ -84,24 +92,28 @@ public class MachineController {
             return timePeriodRepository.save(newTimePeriod);
         });
 
-        machine.getElements()
-                .forEach(element -> element.getExpenses()
-                        .forEach(expense -> expense.setTimePeriod(timePeriod)));
-
+        for (Element element : machine.getElements()) {
+            for (Expense expense : element.getExpenses()) {
+                if (expense.getTimePeriod() == null) {
+                    expense.setTimePeriod(timePeriod);
+                }
+            }
+        }
+        redirectAttributes.addFlashAttribute("success", "New expenses for " + machine.getName() + " has been added!");
         machineRepository.save(machine);
         return "redirect:/machines";
     }
 
-    @GetMapping("/date")
+    @GetMapping("/statistic")
     public String viewMachinesByDate(Model model, @RequestParam(name = "date", defaultValue = "2019-01") String dateParam) {
-        if (dateParam == null || !dateParam.matches("\\d{4}-\\d{2}")) {
-            return "redirect:/machines?date=" + LocalDate.now().toString().substring(0, 7);
-        }
-        String[] date = dateParam.split("-");
-        int month = Integer.parseInt(date[1]);
-        int year = Integer.parseInt(date[0]);
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MM/yyyy");
+        YearMonth yearMonth;
+        yearMonth = YearMonth.parse(dateParam, formatter);
+
+        int month = yearMonth.getMonthValue();
+        int year = yearMonth.getYear();
         model.addAttribute("machines", machineService.getAllMachinesByDate(month, year));
         model.addAttribute("timePeriod", new TimePeriod(null, month, year));
-        return "dateMachines";
+        return "statistic-machine";
     }
 }

@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import ua.kpi.resourcesflow.model.Type;
 import ua.kpi.resourcesflow.service.TypeService;
 
@@ -28,8 +29,9 @@ public class TypeController {
     }
 
     @PostMapping()
-    public String submitForm(@ModelAttribute Type type) {
+    public String submitForm(@ModelAttribute Type type, RedirectAttributes redirectAttributes) {
         typeService.saveType(type);
+        redirectAttributes.addFlashAttribute("success", "New type successfully added!");
         return "redirect:/types";
     }
 }

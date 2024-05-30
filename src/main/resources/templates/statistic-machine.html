@@ -3,15 +3,13 @@
 <head>
   <title>Machines List</title>
   <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+  <link rel="stylesheet" th:href="@{/css/styles.css}" />
 </head>
 <body>
 <div class="container">
-  <form th:action="@{/logout}" method="post">
-    <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
-    <button type="submit" class="btn btn-danger">Logout as "<span th:text="${#authentication.name}"></span>"</button>
-  </form>
+  <a href="/machines" class="btn btn-secondary mt-3 mb-2">< Back to All Machines</a>
   <h1>List of Machines</h1>
-  <h4>Month: <span th:text="${timePeriod.month}"></span>, Year: <span th:text="${timePeriod.year}"></span></h4>
+  <h4>Statistic for <span th:text="${timePeriod.month}"></span>/<span th:text="${timePeriod.year}"></span></h4>
   <div th:each="machine : ${machines}">
     <div class="card mb-3">
       <div class="card-body">
@@ -42,8 +40,6 @@
       </div>
     </div>
   </div>
-  <a href="/machines/add" class="btn btn-primary mt-3">Add Another Machine</a>
-  <a href="/types" class="btn btn-primary mt-3">Show Types</a>
 </div>
 </body>
 </html>

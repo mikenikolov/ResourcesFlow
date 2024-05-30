@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <title>Registered machines</title>
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/css/bootstrap-datepicker.min.css">
+  <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/js/bootstrap-datepicker.min.js"></script>
+  <link rel="stylesheet" th:href="@{/css/styles.css}" />
+</head>
+<body>
+<div class="container">
+  <div class="d-flex justify-content-end mt-2">
+    <form th:action="@{/logout}" method="post">
+      <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+      <button type="submit" class="btn btn-danger">Logout as "<span th:text="${#authentication.name}"></span>"</button>
+    </form>
+  </div>
+  <form id="dateForm" th:action="@{/machines/statistic}" method="get" class="mt-3">
+    <div class="form-group row">
+      <div class="col-sm mt-2">
+        <a href="/machines/add" class="btn btn-primary mt-1">Add Machine</a>
+        <a href="/types" class="btn btn-primary mt-1 mr-2">Show Types</a>
+      </div>
+      <div class="col-sm d-flex align-items-center mt-2">
+        <div class="input-group date" id="datepicker">
+          <input type="text" id="date" placeholder="Search date statistic" name="date" class="form-control input-group-sm" required>
+          <div class="input-group-append">
+            <span class="input-group-text" style="padding: 0"><i class="fa fa-calendar"></i></span>
+          </div>
+          <button type="submit" class="btn btn-primary" style="border-radius: .0rem .25rem .25rem .0rem">Go</button>
+        </div>
+      </div>
+    </div>
+  </form>
+  <div th:if="${error}" class="alert alert-danger mt-2" role="alert">
+    <span th:text="${error}"></span>
+  </div>
+  <div th:if="${success}" class="alert alert-success mt-2" role="alert">
+    <span th:text="${success}"></span>
+  </div>
+  <h1>Registered machines</h1>
+  <div th:each="machine : ${machines}">
+    <div class="card mb-3">
+      <div class="card-body">
+        <h5 class="card-title">
+          <strong>Name: </strong><span th:text="${machine.name}"></span>
+          <a th:href="@{'/machines/' + ${machine.id} + '/add-expenses'}" class="btn btn-warning position-absolute top-0 end-0 ml-4 mr-2" style="margin-top: -6px">Add Expense</a>
+        </h5>
+        <p class="card-text"><strong>Description:</strong> <span th:text="${machine.description}"></span></p>
+        <h6 class="card-subtitle mb-2 text-muted">Elements:</h6>
+        <table class="table">
+          <thead>
+          <tr>
+            <th>Channel</th>
+            <th>Name</th>
+            <th>Type</th>
+            <th>Measurement</th>
+          </tr>
+          </thead>
+          <tbody>
+          <tr th:each="element : ${machine.elements}">
+            <td><span th:text="${element.channel}"></span></td>
+            <td><span th:text="${element.name}"></span></td>
+            <td><span th:text="${element.type.name}"></span></td>
+            <td><span th:text="${element.type.measurement}"></span></td>
+          </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+</body>
+</html>
+
+<script>
+  $(document).ready(function(){
+    $('#datepicker').datepicker({
+      format: 'mm/yyyy',
+      startView: "months",
+      minViewMode: "months",
+      autoclose: true
+    });
+  });
+</script>
