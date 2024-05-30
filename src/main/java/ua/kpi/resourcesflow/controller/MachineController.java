@@ -40,7 +40,7 @@ public class MachineController {
     @PostMapping("/add")
     public String submitForm(@ModelAttribute("machine") Machine machine, RedirectAttributes redirectAttributes) {
         machineService.saveMachine(machine);
-        redirectAttributes.addFlashAttribute("success", "Machine was successfully created!");
+        redirectAttributes.addFlashAttribute("success", "Machine has been successfully created!");
         return "redirect:/machines";
     }
 
@@ -54,7 +54,7 @@ public class MachineController {
     @GetMapping("/{machineId}/add-expenses")
     public String showAddExpenseForm(@PathVariable Long machineId, Model model) {
         Machine machine = machineRepository.findById(machineId)
-                .orElseThrow(() -> new BadRequestException("This machine is not exists!"));
+                .orElseThrow(() -> new BadRequestException(String.format("Machine with ID:%d is not exists!", machineId)));
         ElementWrapper wrapper = new ElementWrapper();
         for (Element element : machine.getElements()) {
             element.getExpenses().clear();
@@ -72,14 +72,13 @@ public class MachineController {
                               @ModelAttribute("elementWrapper") ElementWrapper elementWrapper,
                               RedirectAttributes redirectAttributes) {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MM/yyyy");
-        YearMonth yearMonth;
-        yearMonth = YearMonth.parse(dateStr, formatter);
+        YearMonth yearMonth = YearMonth.parse(dateStr, formatter);
 
         int month = yearMonth.getMonthValue();
         int year = yearMonth.getYear();
         List<Element> elements = elementWrapper.getElements();
         Machine machine = machineRepository.findById(machineId)
-                .orElseThrow(() -> new BadRequestException("This machine is not exists!"));
+                .orElseThrow(() -> new BadRequestException(String.format("Machine with ID:%d is not exists!", machineId)));
         elements.forEach(e -> machine.getElements().forEach(me -> {
             if (e.getId().equals(me.getId())) {
                 me.getExpenses().addAll(e.getExpenses());
@@ -99,7 +98,7 @@ public class MachineController {
                 }
             }
         }
-        redirectAttributes.addFlashAttribute("success", "New expenses for " + machine.getName() + " has been added!");
+        redirectAttributes.addFlashAttribute("success", String.format("New expenses for %s has been added!", machine.getName()));
         machineRepository.save(machine);
         return "redirect:/machines";
     }
@@ -107,8 +106,7 @@ public class MachineController {
     @GetMapping("/statistic")
     public String viewMachinesByDate(Model model, @RequestParam(name = "date", defaultValue = "2019-01") String dateParam) {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MM/yyyy");
-        YearMonth yearMonth;
-        yearMonth = YearMonth.parse(dateParam, formatter);
+        YearMonth yearMonth = YearMonth.parse(dateParam, formatter);
 
         int month = yearMonth.getMonthValue();
         int year = yearMonth.getYear();
