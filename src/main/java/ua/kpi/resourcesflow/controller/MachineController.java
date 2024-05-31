@@ -7,8 +7,6 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import ua.kpi.resourcesflow.exception.BadRequestException;
 import ua.kpi.resourcesflow.model.*;
-import ua.kpi.resourcesflow.repository.MachineRepository;
-import ua.kpi.resourcesflow.repository.TimePeriodRepository;
 import ua.kpi.resourcesflow.service.MachineService;
 import ua.kpi.resourcesflow.service.TypeService;
 
@@ -24,8 +22,6 @@ public class MachineController {
 
     private final MachineService machineService;
     private final TypeService typeService;
-    private final TimePeriodRepository timePeriodRepository;
-    private final MachineRepository machineRepository;
 
     @GetMapping("/add")
     public String showForm(Model model) {
@@ -53,65 +49,36 @@ public class MachineController {
 
     @GetMapping("/{machineId}/add-expenses")
     public String showAddExpenseForm(@PathVariable Long machineId, Model model) {
-        Machine machine = machineRepository.findById(machineId)
+        Machine machine = machineService.getById(machineId)
                 .orElseThrow(() -> new BadRequestException(String.format("Machine with ID:%d is not exists!", machineId)));
-        ElementWrapper wrapper = new ElementWrapper();
+        ElementWrapper expensesList = new ElementWrapper();
         for (Element element : machine.getElements()) {
             element.getExpenses().clear();
         }
-        wrapper.setElements(machine.getElements());
+        expensesList.setElements(machine.getElements());
         model.addAttribute("machineId", machineId);
-        model.addAttribute("elementWrapper", wrapper);
+        model.addAttribute("expensesList", expensesList);
         return "add-expenses";
     }
 
 
     @PostMapping("/{machineId}/add-expenses")
     public String addExpenses(@PathVariable Long machineId,
-                              @RequestParam("date") String dateStr,
-                              @ModelAttribute("elementWrapper") ElementWrapper elementWrapper,
+                              @RequestParam("timePeriod") String timePeriod,
+                              @ModelAttribute("expensesList") ElementWrapper expensesList,
                               RedirectAttributes redirectAttributes) {
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MM/yyyy");
-        YearMonth yearMonth = YearMonth.parse(dateStr, formatter);
-
-        int month = yearMonth.getMonthValue();
-        int year = yearMonth.getYear();
-        List<Element> elements = elementWrapper.getElements();
-        Machine machine = machineRepository.findById(machineId)
-                .orElseThrow(() -> new BadRequestException(String.format("Machine with ID:%d is not exists!", machineId)));
-        elements.forEach(e -> machine.getElements().forEach(me -> {
-            if (e.getId().equals(me.getId())) {
-                me.getExpenses().addAll(e.getExpenses());
-            }
-        }));
-        TimePeriod timePeriod = timePeriodRepository.findByMonthAndYear(month, year).orElseGet(() -> {
-            TimePeriod newTimePeriod = new TimePeriod();
-            newTimePeriod.setMonth(month);
-            newTimePeriod.setYear(year);
-            return timePeriodRepository.save(newTimePeriod);
-        });
-
-        for (Element element : machine.getElements()) {
-            for (Expense expense : element.getExpenses()) {
-                if (expense.getTimePeriod() == null) {
-                    expense.setTimePeriod(timePeriod);
-                }
-            }
-        }
+        Machine machine = machineService.addExpenses(machineId, timePeriod, expensesList);
         redirectAttributes.addFlashAttribute("success", String.format("New expenses for %s has been added!", machine.getName()));
-        machineRepository.save(machine);
         return "redirect:/machines";
     }
 
     @GetMapping("/statistic")
-    public String viewMachinesByDate(Model model, @RequestParam(name = "date", defaultValue = "2019-01") String dateParam) {
+    public String viewMachinesByDate(Model model, @RequestParam(name = "timePeriod", defaultValue = "01/2019") String timePeriod) {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MM/yyyy");
-        YearMonth yearMonth = YearMonth.parse(dateParam, formatter);
-
-        int month = yearMonth.getMonthValue();
-        int year = yearMonth.getYear();
-        model.addAttribute("machines", machineService.getAllMachinesByDate(month, year));
-        model.addAttribute("timePeriod", new TimePeriod(null, month, year));
+        YearMonth yearMonth = YearMonth.parse(timePeriod, formatter);
+        String formattedTimePeriod = yearMonth.format(formatter);
+        model.addAttribute("machines", machineService.getAllMachinesByDate(formattedTimePeriod));
+        model.addAttribute("timePeriod", formattedTimePeriod);
         return "statistic-machine";
     }
 }

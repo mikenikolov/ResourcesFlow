@@ -16,10 +16,7 @@ public class Expense {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
-
-    @ManyToOne
-    private TimePeriod timePeriod;
-
+    private String timePeriod;
     private BigDecimal amount;
 
     @Override

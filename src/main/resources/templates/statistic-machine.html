@@ -4,42 +4,72 @@
   <title>Machines List</title>
   <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
   <link rel="stylesheet" th:href="@{/css/styles.css}" />
+  <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
 </head>
 <body>
 <div class="container">
   <a href="/machines" class="btn btn-secondary mt-3 mb-2">< Back to All Machines</a>
   <h1>List of Machines</h1>
-  <h4>Statistic for <span th:text="${timePeriod.month}"></span>/<span th:text="${timePeriod.year}"></span></h4>
-  <div th:each="machine : ${machines}">
-    <div class="card mb-3">
-      <div class="card-body">
-        <h5 class="card-title"><strong>Name:</strong> <span th:text="${machine.name}"></span></h5>
-        <p class="card-text"><strong>Description:</strong> <span th:text="${machine.description}"></span></p>
-        <h6 class="card-subtitle mb-2 text-muted">Elements:</h6>
-        <table class="table">
-          <thead>
-          <tr>
-            <th>Channel</th>
-            <th>Name</th>
-            <th>Amount</th>
-            <th>Type</th>
-            <th>Total</th>
-          </tr>
-          </thead>
-          <tbody>
-          <tr th:each="element : ${machine.elements}">
-            <td><span th:text="${element.channel}"></span></td>
-            <td><span th:text="${element.name}"></span></td>
-            <td><span th:text="${element.amount}"></span> <span th:text="${element.type.measurement}"></span></td>
-            <td><span th:text="${element.type.name}"></span></td>
-            <td><span th:text="${element.total}"></span> UAH</td>
-          </tr>
-          </tbody>
-        </table>
-        <p>Total: <span th:text="${machine.total}"></span> UAH</p>
+  <h4>Statistic for <span th:text="${timePeriod}"></span></h4>
+  <button id="sortButton" class="btn btn-primary mb-3">Sort by Total</button>
+  <div id="machineList">
+    <div th:each="machine : ${machines}" class="machine-card">
+      <div class="card mb-3">
+        <div class="card-body">
+          <h5 class="card-title"><strong>Name:</strong> <span th:text="${machine.name}"></span></h5>
+          <p class="card-text"><strong>Description:</strong> <span th:text="${machine.description}"></span></p>
+          <h6 class="card-subtitle mb-2 text-muted">Elements:</h6>
+          <table class="table">
+            <thead>
+            <tr>
+              <th>Channel</th>
+              <th>Name</th>
+              <th>Amount</th>
+              <th>Type</th>
+              <th>Total</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="element : ${machine.elements}">
+              <td><span th:text="${element.channel}"></span></td>
+              <td><span th:text="${element.name}"></span></td>
+              <td><span th:text="${element.amount}"></span> <span th:text="${element.type.measurement}"></span></td>
+              <td><span th:text="${element.type.name}"></span></td>
+              <td><span th:text="${element.total}"></span> UAH</td>
+            </tr>
+            </tbody>
+          </table>
+          <p>Total: <span class="machine-total" th:text="${machine.total}"></span> UAH</p>
+        </div>
       </div>
     </div>
   </div>
 </div>
+<script>
+  let isAscending = false;
+
+  document.getElementById('sortButton').addEventListener('click', function() {
+    var machineList = document.getElementById('machineList');
+    var machines = Array.from(machineList.getElementsByClassName('machine-card'));
+
+    machines.sort(function(a, b) {
+      var totalA = parseFloat(a.querySelector('.machine-total').innerText);
+      var totalB = parseFloat(b.querySelector('.machine-total').innerText);
+
+      if (isAscending) {
+        return totalA - totalB;
+      } else {
+        return totalB - totalA;
+      }
+    });
+
+    machines.forEach(function(machine) {
+      machineList.appendChild(machine);
+    });
+
+    isAscending = !isAscending;
+    this.innerText = isAscending ? 'Sort by Total (Descending)' : 'Sort by Total (Ascending)';
+  });
+</script>
 </body>
 </html>

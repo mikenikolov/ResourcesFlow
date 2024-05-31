@@ -12,14 +12,14 @@
 <div class="container">
   <a href="/machines" class="btn btn-secondary mt-3 mb-2">< Back to All Machines</a>
   <h1>Add Expenses</h1>
-  <form th:action="@{'/machines/' + ${machineId} + '/add-expenses'}" method="post" th:object="${elementWrapper}">
+  <form th:action="@{'/machines/' + ${machineId} + '/add-expenses'}" method="post" th:object="${expensesList}">
     <div class="form-group row">
       <div class="col-sm-8 d-flex align-items-center">
         <h3 class="mb-0">Elements</h3>
       </div>
       <div class="col-sm-4">
         <div class="input-group date" id="datepicker">
-          <input placeholder="Click to choose a date" type="text" id="date" name="date" class="form-control" required>
+          <input placeholder="Click to choose a date" type="text" id="timePeriod" name="timePeriod" class="form-control" required>
           <div class="input-group-append">
             <span class="input-group-text"><i class="fa fa-calendar"></i></span>
           </div>
