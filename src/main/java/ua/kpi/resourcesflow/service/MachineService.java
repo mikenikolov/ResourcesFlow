@@ -22,24 +22,18 @@ public class MachineService {
 
     public List<Machine> getAllMachinesByDate(String timePeriod) {
         List<Machine> machines = machineRepository.findByChannels_Expenses_TimePeriod(timePeriod);
-        machines.forEach(machine -> {
-            machine.getChannels().forEach(element -> {
-                element.setExpenses(
-                        element.getExpenses().stream()
-                                .filter(expense -> expense.getTimePeriod().equals(timePeriod))
-                                .collect(Collectors.toList())
-                );
-            });
-        });
-        machines.forEach(machine -> machine.getChannels().forEach(element -> {
-            BigDecimal amount = element.getExpenses().stream()
+        machines.forEach(machine -> machine.getChannels().forEach(channel -> channel.setExpenses(channel.getExpenses().stream()
+                        .filter(expense -> expense.getTimePeriod().equals(timePeriod))
+                        .collect(Collectors.toList()))));
+        machines.forEach(machine -> machine.getChannels().forEach(channel -> {
+            BigDecimal amount = channel.getExpenses().stream()
                     .map(Expense::getAmount)
                     .reduce(BigDecimal.ZERO, BigDecimal::add);
-            BigDecimal total = element.getExpenses().stream()
-                    .map(expense -> expense.getAmount().multiply(element.getType().getUnitPrice()))
+            BigDecimal total = channel.getExpenses().stream()
+                    .map(expense -> expense.getAmount().multiply(channel.getType().getUnitPrice()))
                     .reduce(BigDecimal.ZERO, BigDecimal::add);
-            element.setAmount(amount.setScale(1, RoundingMode.UP));
-            element.setTotal(total.setScale(1, RoundingMode.UP));
+            channel.setAmount(amount.setScale(1, RoundingMode.UP));
+            channel.setTotal(total.setScale(1, RoundingMode.UP));
         }));
         machines.forEach(machine -> {
             BigDecimal totalMachine = machine.getChannels().stream()
@@ -50,23 +44,21 @@ public class MachineService {
         return machines;
     }
 
-    public Machine addExpenses(Long machineId, String timePeriod, ChannelWrapper expensesList) {
-        List<Channel> channels = expensesList.getChannels();
+    public Machine addExpenses(Long machineId, String timePeriod, ChannelWrapper channelWrapper) {
         Machine machine = machineRepository.findById(machineId)
                 .orElseThrow(() -> new BadRequestException(String.format("Machine with ID:%d is not exists!", machineId)));
-        channels.forEach(e -> machine.getChannels().forEach(me -> {
-            if (e.getId().equals(me.getId())) {
-                me.getExpenses().addAll(e.getExpenses());
-            }
-        }));
+        channelWrapper.getChannels().forEach(updatedChannel -> machine.getChannels().forEach(channel -> {
+                    if (updatedChannel.getId().equals(channel.getId())) {
+                        updatedChannel.getExpenses().forEach(expense -> expense.setChannel(channel));
+                        channel.getExpenses().addAll(updatedChannel.getExpenses());
+                    }
+                })
+        );
 
-        for (Channel channel : machine.getChannels()) {
-            for (Expense expense : channel.getExpenses()) {
-                if (expense.getTimePeriod() == null) {
-                    expense.setTimePeriod(timePeriod);
-                }
-            }
-        }
+        machine.getChannels().stream()
+                .flatMap(channel -> channel.getExpenses().stream())
+                .filter(expense -> expense.getTimePeriod() == null)
+                .forEach(expense -> expense.setTimePeriod(timePeriod));
         machineRepository.save(machine);
         return machine;
     }

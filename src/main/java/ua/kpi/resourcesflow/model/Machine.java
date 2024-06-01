@@ -28,7 +28,7 @@ public class Machine {
     private Long id;
     private String name;
     private String description;
-    @OneToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE})
+    @OneToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE}, mappedBy = "machine")
     @ToString.Exclude
     private List<Channel> channels;
     @Transient

@@ -18,6 +18,8 @@ public class Expense {
     private Long id;
     private String timePeriod;
     private BigDecimal amount;
+    @ManyToOne
+    private Channel channel;
 
     @Override
     public final boolean equals(Object o) {

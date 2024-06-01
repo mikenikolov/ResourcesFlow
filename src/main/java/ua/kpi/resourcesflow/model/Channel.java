@@ -22,7 +22,7 @@ public class Channel {
     private String name;
     @ManyToOne
     private Type type;
-    @OneToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REFRESH})
+    @OneToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REFRESH}, mappedBy = "channel")
     @ToString.Exclude
     private List<Expense> expenses = new ArrayList<>();
     @ManyToOne

@@ -35,6 +35,7 @@ public class MachineController {
 
     @PostMapping("/add")
     public String submitForm(@ModelAttribute("machine") Machine machine, RedirectAttributes redirectAttributes) {
+        machine.getChannels().forEach(channel -> channel.setMachine(machine));
         machineService.saveMachine(machine);
         redirectAttributes.addFlashAttribute("success", "Machine has been successfully created!");
         return "redirect:/machines";
@@ -51,13 +52,13 @@ public class MachineController {
     public String showAddExpenseForm(@PathVariable Long machineId, Model model) {
         Machine machine = machineService.getById(machineId)
                 .orElseThrow(() -> new BadRequestException(String.format("Machine with ID:%d is not exists!", machineId)));
-        ChannelWrapper expensesList = new ChannelWrapper();
+        ChannelWrapper channelList = new ChannelWrapper();
         for (Channel channel : machine.getChannels()) {
             channel.getExpenses().clear();
         }
-        expensesList.setChannels(machine.getChannels());
+        channelList.setChannels(machine.getChannels());
         model.addAttribute("machineId", machineId);
-        model.addAttribute("expensesList", expensesList);
+        model.addAttribute("channelList", channelList);
         return "add-expenses";
     }
 
@@ -65,9 +66,9 @@ public class MachineController {
     @PostMapping("/{machineId}/add-expenses")
     public String addExpenses(@PathVariable Long machineId,
                               @RequestParam("timePeriod") String timePeriod,
-                              @ModelAttribute("expensesList") ChannelWrapper expensesList,
+                              @ModelAttribute("channelList") ChannelWrapper channelWrapper,
                               RedirectAttributes redirectAttributes) {
-        Machine machine = machineService.addExpenses(machineId, timePeriod, expensesList);
+        Machine machine = machineService.addExpenses(machineId, timePeriod, channelWrapper);
         redirectAttributes.addFlashAttribute("success", String.format("New expenses for %s has been added!", machine.getName()));
         return "redirect:/machines";
     }
