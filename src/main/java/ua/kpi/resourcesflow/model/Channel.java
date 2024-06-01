@@ -14,7 +14,7 @@ import java.util.Objects;
 @ToString
 @RequiredArgsConstructor
 @Entity
-public class Element {
+public class Channel {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
@@ -25,6 +25,8 @@ public class Element {
     @OneToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REFRESH})
     @ToString.Exclude
     private List<Expense> expenses = new ArrayList<>();
+    @ManyToOne
+    private Machine machine;
     @Transient
     private BigDecimal total = new BigDecimal(0);
     @Transient
@@ -37,7 +39,7 @@ public class Element {
         Class<?> oEffectiveClass = o instanceof HibernateProxy ? ((HibernateProxy) o).getHibernateLazyInitializer().getPersistentClass() : o.getClass();
         Class<?> thisEffectiveClass = this instanceof HibernateProxy ? ((HibernateProxy) this).getHibernateLazyInitializer().getPersistentClass() : this.getClass();
         if (thisEffectiveClass != oEffectiveClass) return false;
-        Element element = (Element) o;
+        Channel element = (Channel) o;
         return getId() != null && Objects.equals(getId(), element.getId());
     }
 

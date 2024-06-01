@@ -30,7 +30,7 @@ public class Machine {
     private String description;
     @OneToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     @ToString.Exclude
-    private List<Element> elements;
+    private List<Channel> channels;
     @Transient
     private BigDecimal total = new BigDecimal(0);
 

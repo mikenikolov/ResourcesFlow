@@ -35,14 +35,14 @@
         <th>Expense</th>
       </tr>
       </thead>
-      <tbody id="elements">
-      <tr th:each="element, iterStat : *{elements}">
-        <td th:text="${element.channel}"></td>
-        <td th:text="${element.name}"></td>
-        <td th:text="${element.type.measurement}"></td>
+      <tbody id="channels">
+      <tr th:each="channel, iterStat : *{channels}">
+        <td th:text="${channel.channel}"></td>
+        <td th:text="${channel.name}"></td>
+        <td th:text="${channel.type.measurement}"></td>
         <td>
-          <input placeholder="Value" type="number" th:field="*{elements[__${iterStat.index}__].expenses[0].amount}" class="form-control" step="0.01" required>
-          <input type="hidden" th:field="*{elements[__${iterStat.index}__].id}" />
+          <input placeholder="Value" type="number" th:field="*{channels[__${iterStat.index}__].expenses[0].amount}" class="form-control" step="0.01" required>
+          <input type="hidden" th:field="*{channels[__${iterStat.index}__].id}" />
         </td>
       </tr>
       </tbody>

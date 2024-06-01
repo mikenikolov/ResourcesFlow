@@ -6,6 +6,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Data
-public class ElementWrapper {
-    private List<Element> elements = new ArrayList<>();
+public class ChannelWrapper {
+    private List<Channel> channels = new ArrayList<>();
 }

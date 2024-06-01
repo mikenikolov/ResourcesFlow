@@ -8,15 +8,15 @@
         let types = /*[[${types}]]*/ [];
         /*]]>*/
         function addElement() {
-            let elementContainer = document.getElementById('elements');
+            let elementContainer = document.getElementById('channels');
             let elementCount = elementContainer.children.length;
             let newElement = document.createElement('tr');
             let options = types.map(type => `<option value="${type.id}">${type.name} | 1 ${type.measurement} = ${type.unitPrice} UAH</option>`).join('');
             newElement.innerHTML = `
-        <td><input placeholder="Channel/spot" required type="text" min="1" class="form-control" name="elements[${elementCount}].channel"/></td>
-        <td><input placeholder="Resource name" required type="text" class="form-control" name="elements[${elementCount}].name" /></td>
+        <td><input placeholder="Channel/spot" required type="text" min="1" class="form-control" name="channels[${elementCount}].channel"/></td>
+        <td><input placeholder="Resource name" required type="text" class="form-control" name="channels[${elementCount}].name" /></td>
         <td><div class="form-group">
-            <select id="type" name="elements[${elementCount}].type.id" class="form-control" required>
+            <select id="type" name="channels[${elementCount}].type.id" class="form-control" required>
                 ${options}
             </select>
            </div>
@@ -57,13 +57,13 @@
                 <th>Action</th>
             </tr>
             </thead>
-            <tbody id="elements">
-            <tr th:each="element, iterStat : *{elements}">
-                <td><input placeholder="Channel/spot" required type="text" min="1" class="form-control" th:field="*{elements[__${iterStat.index}__].channel}"/></td>
-                <td><input placeholder="Resource name" required type="text" class="form-control" th:field="*{elements[__${iterStat.index}__].name}"/></td>
+            <tbody id="channels">
+            <tr th:each="channel, iterStat : *{channels}">
+                <td><input placeholder="Channel/spot" required type="text" min="1" class="form-control" th:field="*{channels[__${iterStat.index}__].channel}"/></td>
+                <td><input placeholder="Resource name" required type="text" class="form-control" th:field="*{channels[__${iterStat.index}__].name}"/></td>
                 <td>
                     <div class="form-group">
-                        <select id="type" th:field="*{elements[__${iterStat.index}__].type.id}" class="form-control" required>
+                        <select id="type" th:field="*{channels[__${iterStat.index}__].type.id}" class="form-control" required>
                             <option th:each="type : ${types}" th:value="${type.id}" th:text="${type}">Type</option>
                         </select>
                     </div>

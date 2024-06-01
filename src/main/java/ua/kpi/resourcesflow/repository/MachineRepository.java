@@ -6,5 +6,5 @@ import ua.kpi.resourcesflow.model.Machine;
 import java.util.List;
 
 public interface MachineRepository extends JpaRepository<Machine, Long> {
-    List<Machine> findByElements_Expenses_TimePeriod(String timePeriod);
+    List<Machine> findByChannels_Expenses_TimePeriod(String timePeriod);
 }

@@ -59,11 +59,11 @@
           </tr>
           </thead>
           <tbody>
-          <tr th:each="element : ${machine.elements}">
-            <td><span th:text="${element.channel}"></span></td>
-            <td><span th:text="${element.name}"></span></td>
-            <td><span th:text="${element.type.name}"></span></td>
-            <td><span th:text="${element.type.measurement}"></span></td>
+          <tr th:each="channel : ${machine.channels}">
+            <td><span th:text="${channel.channel}"></span></td>
+            <td><span th:text="${channel.name}"></span></td>
+            <td><span th:text="${channel.type.name}"></span></td>
+            <td><span th:text="${channel.type.measurement}"></span></td>
           </tr>
           </tbody>
         </table>

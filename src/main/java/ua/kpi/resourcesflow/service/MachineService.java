@@ -3,8 +3,8 @@ package ua.kpi.resourcesflow.service;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 import ua.kpi.resourcesflow.exception.BadRequestException;
-import ua.kpi.resourcesflow.model.Element;
-import ua.kpi.resourcesflow.model.ElementWrapper;
+import ua.kpi.resourcesflow.model.Channel;
+import ua.kpi.resourcesflow.model.ChannelWrapper;
 import ua.kpi.resourcesflow.model.Expense;
 import ua.kpi.resourcesflow.model.Machine;
 import ua.kpi.resourcesflow.repository.MachineRepository;
@@ -21,9 +21,9 @@ public class MachineService {
     private final MachineRepository machineRepository;
 
     public List<Machine> getAllMachinesByDate(String timePeriod) {
-        List<Machine> machines = machineRepository.findByElements_Expenses_TimePeriod(timePeriod);
+        List<Machine> machines = machineRepository.findByChannels_Expenses_TimePeriod(timePeriod);
         machines.forEach(machine -> {
-            machine.getElements().forEach(element -> {
+            machine.getChannels().forEach(element -> {
                 element.setExpenses(
                         element.getExpenses().stream()
                                 .filter(expense -> expense.getTimePeriod().equals(timePeriod))
@@ -31,7 +31,7 @@ public class MachineService {
                 );
             });
         });
-        machines.forEach(machine -> machine.getElements().forEach(element -> {
+        machines.forEach(machine -> machine.getChannels().forEach(element -> {
             BigDecimal amount = element.getExpenses().stream()
                     .map(Expense::getAmount)
                     .reduce(BigDecimal.ZERO, BigDecimal::add);
@@ -42,26 +42,26 @@ public class MachineService {
             element.setTotal(total.setScale(1, RoundingMode.UP));
         }));
         machines.forEach(machine -> {
-            BigDecimal totalMachine = machine.getElements().stream()
-                    .map(Element::getTotal)
+            BigDecimal totalMachine = machine.getChannels().stream()
+                    .map(Channel::getTotal)
                     .reduce(BigDecimal.ZERO, BigDecimal::add);
             machine.setTotal(totalMachine.setScale(1, RoundingMode.UP));
         });
         return machines;
     }
 
-    public Machine addExpenses(Long machineId, String timePeriod, ElementWrapper expensesList) {
-        List<Element> elements = expensesList.getElements();
+    public Machine addExpenses(Long machineId, String timePeriod, ChannelWrapper expensesList) {
+        List<Channel> channels = expensesList.getChannels();
         Machine machine = machineRepository.findById(machineId)
                 .orElseThrow(() -> new BadRequestException(String.format("Machine with ID:%d is not exists!", machineId)));
-        elements.forEach(e -> machine.getElements().forEach(me -> {
+        channels.forEach(e -> machine.getChannels().forEach(me -> {
             if (e.getId().equals(me.getId())) {
                 me.getExpenses().addAll(e.getExpenses());
             }
         }));
 
-        for (Element element : machine.getElements()) {
-            for (Expense expense : element.getExpenses()) {
+        for (Channel channel : machine.getChannels()) {
+            for (Expense expense : channel.getExpenses()) {
                 if (expense.getTimePeriod() == null) {
                     expense.setTimePeriod(timePeriod);
                 }

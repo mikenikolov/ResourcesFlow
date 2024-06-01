@@ -26,8 +26,8 @@ public class MachineController {
     @GetMapping("/add")
     public String showForm(Model model) {
         Machine machine = new Machine();
-        machine.setElements(new ArrayList<>());
-        machine.getElements().add(new Element());
+        machine.setChannels(new ArrayList<>());
+        machine.getChannels().add(new Channel());
         model.addAttribute("machine", machine);
         model.addAttribute("types", typeService.getAllTypes());
         return "add-machine";
@@ -51,11 +51,11 @@ public class MachineController {
     public String showAddExpenseForm(@PathVariable Long machineId, Model model) {
         Machine machine = machineService.getById(machineId)
                 .orElseThrow(() -> new BadRequestException(String.format("Machine with ID:%d is not exists!", machineId)));
-        ElementWrapper expensesList = new ElementWrapper();
-        for (Element element : machine.getElements()) {
-            element.getExpenses().clear();
+        ChannelWrapper expensesList = new ChannelWrapper();
+        for (Channel channel : machine.getChannels()) {
+            channel.getExpenses().clear();
         }
-        expensesList.setElements(machine.getElements());
+        expensesList.setChannels(machine.getChannels());
         model.addAttribute("machineId", machineId);
         model.addAttribute("expensesList", expensesList);
         return "add-expenses";
@@ -65,7 +65,7 @@ public class MachineController {
     @PostMapping("/{machineId}/add-expenses")
     public String addExpenses(@PathVariable Long machineId,
                               @RequestParam("timePeriod") String timePeriod,
-                              @ModelAttribute("expensesList") ElementWrapper expensesList,
+                              @ModelAttribute("expensesList") ChannelWrapper expensesList,
                               RedirectAttributes redirectAttributes) {
         Machine machine = machineService.addExpenses(machineId, timePeriod, expensesList);
         redirectAttributes.addFlashAttribute("success", String.format("New expenses for %s has been added!", machine.getName()));
