@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import ua.kpi.resourcesflow.exception.BadRequestException;
 import ua.kpi.resourcesflow.model.*;
+import ua.kpi.resourcesflow.service.ExpenseService;
 import ua.kpi.resourcesflow.service.MachineService;
 import ua.kpi.resourcesflow.service.TypeService;
 
@@ -19,12 +20,12 @@ import java.util.List;
 @RequestMapping("/machines")
 @AllArgsConstructor
 public class MachineController {
-
+    private final ExpenseService expenseService;
     private final MachineService machineService;
     private final TypeService typeService;
 
     @GetMapping("/add")
-    public String showForm(Model model) {
+    public String showAddMachineForm(Model model) {
         Machine machine = new Machine();
         machine.setChannels(new ArrayList<>());
         machine.getChannels().add(new Channel());
@@ -34,7 +35,7 @@ public class MachineController {
     }
 
     @PostMapping("/add")
-    public String submitForm(@ModelAttribute("machine") Machine machine, RedirectAttributes redirectAttributes) {
+    public String saveNewMachine(@ModelAttribute("machine") Machine machine, RedirectAttributes redirectAttributes) {
         machine.getChannels().forEach(channel -> channel.setMachine(machine));
         machineService.saveMachine(machine);
         redirectAttributes.addFlashAttribute("success", "Machine has been successfully created!");
@@ -68,18 +69,8 @@ public class MachineController {
                               @RequestParam("timePeriod") String timePeriod,
                               @ModelAttribute("channelList") ChannelWrapper channelWrapper,
                               RedirectAttributes redirectAttributes) {
-        Machine machine = machineService.addExpenses(machineId, timePeriod, channelWrapper);
+        Machine machine = expenseService.addExpenses(machineId, timePeriod, channelWrapper);
         redirectAttributes.addFlashAttribute("success", String.format("New expenses for %s has been added!", machine.getName()));
         return "redirect:/machines";
-    }
-
-    @GetMapping("/statistic")
-    public String viewMachinesByDate(Model model, @RequestParam(name = "timePeriod", defaultValue = "01/2019") String timePeriod) {
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MM/yyyy");
-        YearMonth yearMonth = YearMonth.parse(timePeriod, formatter);
-        String formattedTimePeriod = yearMonth.format(formatter);
-        model.addAttribute("machines", machineService.getAllMachinesByDate(formattedTimePeriod));
-        model.addAttribute("timePeriod", formattedTimePeriod);
-        return "statistic-machine";
     }
 }
