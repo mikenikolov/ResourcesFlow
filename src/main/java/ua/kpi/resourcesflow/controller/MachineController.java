@@ -7,12 +7,11 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import ua.kpi.resourcesflow.exception.BadRequestException;
 import ua.kpi.resourcesflow.model.*;
+import ua.kpi.resourcesflow.model.dto.ChannelWrapper;
 import ua.kpi.resourcesflow.service.ExpenseService;
 import ua.kpi.resourcesflow.service.MachineService;
 import ua.kpi.resourcesflow.service.TypeService;
 
-import java.time.YearMonth;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 

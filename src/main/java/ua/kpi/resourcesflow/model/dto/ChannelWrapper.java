@@ -1,6 +1,7 @@
-package ua.kpi.resourcesflow.model;
+package ua.kpi.resourcesflow.model.dto;
 
 import lombok.Data;
+import ua.kpi.resourcesflow.model.Channel;
 
 import java.util.ArrayList;
 import java.util.List;

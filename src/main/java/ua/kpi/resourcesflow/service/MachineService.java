@@ -2,9 +2,7 @@ package ua.kpi.resourcesflow.service;
 
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
-import ua.kpi.resourcesflow.exception.BadRequestException;
 import ua.kpi.resourcesflow.model.Channel;
-import ua.kpi.resourcesflow.model.ChannelWrapper;
 import ua.kpi.resourcesflow.model.Expense;
 import ua.kpi.resourcesflow.model.Machine;
 import ua.kpi.resourcesflow.repository.MachineRepository;
