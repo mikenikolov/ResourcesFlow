@@ -57,7 +57,7 @@ public class MachineController {
             channel.getExpenses().clear();
         }
         channelList.setChannels(machine.getChannels());
-        model.addAttribute("machineId", machineId);
+        model.addAttribute("machine", machine);
         model.addAttribute("channelList", channelList);
         return "add-expenses";
     }
